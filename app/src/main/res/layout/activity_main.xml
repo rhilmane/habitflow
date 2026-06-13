@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android" android:fitsSystemWindows="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/main" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background" tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:contentInsetStart="0dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="match_parent" android:paddingHorizontal="20dp">
+
+                <com.google.android.material.imageview.ShapeableImageView android:contentDescription="@null" android:id="@+id/profile_image" android:layout_width="32dp" android:layout_height="32dp" android:scaleType="centerCrop" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" android:src="@android:color/darker_gray" app:strokeColor="@color/surface_variant" app:strokeWidth="2dp" />
+
+                <TextView android:id="@+id/toolbar_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:fontFamily="sans-serif-black" android:text="@string/habitflow" android:textColor="@color/primary" android:textSize="24sp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toEndOf="@id/profile_image" app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton android:id="@+id/btn_notifications" style="@style/Widget.Material3.Button.IconButton" android:layout_width="48dp" android:layout_height="48dp" app:icon="@drawable/ic_settings" app:iconTint="@color/on_surface_variant" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent" app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" app:cardBackgroundColor="@color/surface_container_lowest" app:cardCornerRadius="12dp" app:cardElevation="2dp" app:strokeWidth="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+
+                    <TextView android:id="@+id/tv_momentum_label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-medium" android:text="@string/daily_momentum" android:textColor="@color/primary" android:textSize="14sp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView android:id="@+id/tv_completion_percent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="@string/num_80_completed" android:textColor="@color/on_background" android:textSize="24sp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/tv_momentum_label" />
+
+                    <com.google.android.material.card.MaterialCardView android:layout_width="wrap_content" android:layout_height="wrap_content" app:cardBackgroundColor="#336FFBBE" app:cardCornerRadius="16dp" app:layout_constraintBottom_toBottomOf="@id/tv_completion_percent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="@id/tv_momentum_label" app:strokeWidth="0dp">
+
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:orientation="horizontal" android:paddingHorizontal="12dp" android:paddingVertical="4dp">
+
+                            <ImageView android:contentDescription="@null" android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_fire" app:tint="@color/on_secondary_container" />
+
+                            <TextView android:id="@+id/tv_dashboard_streak" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:fontFamily="sans-serif-black" android:text="@string/num_0_day_streak" android:textColor="@color/on_secondary_container" android:textSize="12sp" />
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/progress_momentum" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:progress="80" app:indicatorColor="@color/secondary_fixed_dim" app:layout_constraintTop_toBottomOf="@id/tv_completion_percent" app:trackColor="@color/surface_variant" app:trackCornerRadius="6dp" app:trackThickness="12dp" />
+
+                    <TextView android:id="@+id/tv_momentum_subtitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/no_habits_yet_add_one_to_get_s" android:textColor="@color/on_surface_variant" android:textSize="14sp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/progress_momentum" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="@string/today_s_habits" android:textColor="@color/on_background" android:textSize="20sp" />
+
+                <TextView android:id="@+id/tv_view_all" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:text="@string/view_all" android:textColor="@color/primary" android:textSize="14sp" />
+            </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rv_today_habits" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:nestedScrollingEnabled="false" />
+
+            <TextView android:id="@+id/tv_today_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="32dp" android:gravity="center" android:text="@string/no_habits_for_today_yet" android:textColor="@color/outline" android:textSize="14sp" android:visibility="gone" />
+
+            <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:columnCount="2" android:useDefaultMargins="true">
+
+                <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" app:cardBackgroundColor="@color/surface_container_low" app:cardCornerRadius="12dp" app:strokeWidth="1dp" app:strokeColor="@color/surface_variant">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:gravity="center">
+                        <ImageView android:contentDescription="@null" android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_star" app:tint="@color/tertiary" />
+                        <TextView android:id="@+id/tv_longest_streak" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="24sp" android:fontFamily="sans-serif-black" android:textColor="@color/on_background"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/longest_streak" android:textSize="12sp" android:textColor="@color/on_surface_variant"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" app:cardBackgroundColor="@color/surface_container_low" app:cardCornerRadius="12dp" app:strokeWidth="1dp" app:strokeColor="@color/surface_variant">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:gravity="center">
+                        <ImageView android:contentDescription="@null" android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_trending_up" app:tint="@color/primary" />
+                        <TextView android:id="@+id/tv_weekly_avg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="24sp" android:fontFamily="sans-serif-black" android:textColor="@color/on_background"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/weekly_avg" android:textSize="12sp" android:textColor="@color/on_surface_variant"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </GridLayout>
+
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardBackgroundColor="#0D0056D2" app:cardCornerRadius="12dp" app:strokeWidth="1dp" app:strokeColor="#1A0056D2">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:gravity="center" android:minHeight="140dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/quot_discipline_equals_freedom" android:textColor="@color/primary" android:fontFamily="sans-serif-medium" android:textSize="16sp"/>
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/jocko_willink" android:textColor="#B30056D2" android:textSize="12sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Padding for bottom nav -->
+            <View android:layout_width="match_parent" android:layout_height="80dp" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/bottom_navigation" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom" android:background="@color/surface_container_lowest" app:itemIconTint="@color/on_surface_variant" app:itemTextColor="@color/on_surface_variant" app:labelVisibilityMode="labeled" app:menu="@menu/bottom_nav_menu" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fab_add_habit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_marginEnd="16dp" android:layout_marginBottom="100dp" app:srcCompat="@drawable/ic_add" app:backgroundTint="@color/primary" app:tint="@color/on_primary" app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:checkable="false"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/surface_container_lowest"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/icon_container"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            app:cardBackgroundColor="@color/primary_fixed"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp">
+
+            <ImageView
+                android:id="@+id/iv_habit_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/habit_icon"
+                android:src="@drawable/ic_star"
+                app:tint="@color/on_primary_fixed" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_check"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/mark_done_today"
+            app:icon="@drawable/ic_check"
+            app:iconTint="@color/on_primary" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_toStartOf="@id/btn_check"
+            android:layout_toEndOf="@id/icon_container"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_habit_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:text="@string/habit_name"
+                android:textColor="@color/on_surface"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_habit_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/daily"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

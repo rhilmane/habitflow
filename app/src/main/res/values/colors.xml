@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="primary">#0056D2</color>
+    <color name="on_primary">#ffffff</color>
+    <color name="primary_container">#D9E2FF</color>
+    <color name="on_primary_container">#001945</color>
+
+    <color name="secondary">#006c49</color>
+    <color name="on_secondary">#ffffff</color>
+    <color name="secondary_container">#6cf8bb</color>
+    <color name="on_secondary_container">#00714d</color>
+
+    <color name="tertiary">#006495</color>
+    <color name="on_tertiary">#ffffff</color>
+    <color name="tertiary_container">#CBE6FF</color>
+    <color name="on_tertiary_container">#001E30</color>
+
+    <color name="error">#ba1a1a</color>
+    <color name="on_error">#ffffff</color>
+    <color name="error_container">#ffdad6</color>
+    <color name="on_error_container">#93000a</color>
+
+    <color name="background">#f8f9fa</color>
+    <color name="on_background">#191c1d</color>
+
+    <color name="surface">#f8f9fa</color>
+    <color name="on_surface">#191c1d</color>
+    <color name="surface_variant">#e1e3e4</color>
+    <color name="on_surface_variant">#464554</color>
+
+    <color name="outline">#777586</color>
+    <color name="outline_variant">#c7c4d7</color>
+
+    <color name="inverse_surface">#2e3132</color>
+    <color name="inverse_on_surface">#f0f1f2</color>
+    <color name="inverse_primary">#adc6ff</color>
+
+    <color name="surface_container_low">#f3f4f5</color>
+    <color name="surface_container_lowest">#ffffff</color>
+    <color name="surface_container">#eceef0</color>
+    <color name="surface_container_high">#e6e8ea</color>
+
+    <color name="primary_fixed">#D9E2FF</color>
+    <color name="on_primary_fixed">#001945</color>
+    <color name="secondary_fixed">#88f9c0</color>
+    <color name="on_secondary_fixed">#002113</color>
+    <color name="secondary_fixed_dim">#4cdba4</color>
+</resources>
