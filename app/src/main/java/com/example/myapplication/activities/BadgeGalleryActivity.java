@@ -57,7 +57,7 @@ public class BadgeGalleryActivity extends AppCompatActivity {
     private void loadBadges() {
         long userId = session.getUserId();
         AppExecutors.io().execute(() -> {
-            // 9bel l'affichage, n3awdo nقيمو badges bach nfekkو li t-istahaqqo
+            // 9bel l'affichage, n3awdo nqiymo badges bach nfeko li t-istahaqqo
             BadgeEvaluator.evaluate(getApplicationContext(), userId);
             List<Badge> badges = badgeDao.getAll();
             long earned = 0, locked = 0;

@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Onboarding gate: lowwel mرة → welcome screen
+        // Onboarding gate: lowwel marra → welcome screen
         if (!OnboardingActivity.isDone(this)) {
             Intent intent = new Intent(this, OnboardingActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             return;
         }
 
-        // Auth gate: ila l'utilisateur machi connecté → siftou l Login
+        // Auth gate: if the user is not logged in send to Login
         session = new SessionManager(this);
         if (!session.isLoggedIn()) {
             goToLogin();
@@ -75,27 +75,29 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
         // Android 13+: runtime permission pour les notifications
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(
+                    android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(
-                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
+                        new String[] { android.Manifest.permission.POST_NOTIFICATIONS }, 1001);
             }
         }
 
-        // Synchronisation Supabase en arrière-plan dès que l'utilisateur est connecté
+        // Télécharge d'abord les données cloud, puis envoie les changements locaux
+        SyncManager.downloadAll(this);
         SyncManager.syncAll(this);
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        // L'insets dyal status bar / nav bar kayt-handلو b android:fitsSystemWindows="true" f l'layout root.
+        // L'insets dyal status bar / nav bar is handled by
+        // android:fitsSystemWindows="true" in the root layout.
 
         tvCompletionPercent = findViewById(R.id.tv_completion_percent);
-        tvMomentumSubtitle  = findViewById(R.id.tv_momentum_subtitle);
-        tvDashboardStreak   = findViewById(R.id.tv_dashboard_streak);
-        tvTodayEmpty        = findViewById(R.id.tv_today_empty);
-        tvLongestStreak     = findViewById(R.id.tv_longest_streak);
-        tvWeeklyAvg         = findViewById(R.id.tv_weekly_avg);
-        progressMomentum    = findViewById(R.id.progress_momentum);
+        tvMomentumSubtitle = findViewById(R.id.tv_momentum_subtitle);
+        tvDashboardStreak = findViewById(R.id.tv_dashboard_streak);
+        tvTodayEmpty = findViewById(R.id.tv_today_empty);
+        tvLongestStreak = findViewById(R.id.tv_longest_streak);
+        tvWeeklyAvg = findViewById(R.id.tv_weekly_avg);
+        progressMomentum = findViewById(R.id.progress_momentum);
 
         RecyclerView rv = findViewById(R.id.rv_today_habits);
         rv.setLayoutManager(new LinearLayoutManager(this));
@@ -138,7 +140,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             for (Habit h : all) {
                 List<HabitLog> logs = logDao.getLogsForHabit(h.id);
                 Set<String> doneDates = new HashSet<>();
-                for (HabitLog log : logs) if (log.done) doneDates.add(log.date);
+                for (HabitLog log : logs)
+                    if (log.done)
+                        doneDates.add(log.date);
 
                 // Max streak sur TOUTES les habitudes
                 maxStreak = Math.max(maxStreak, computeStreak(doneDates, today));
@@ -147,22 +151,24 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 for (int i = 0; i < 7; i++) {
                     if (HabitSchedule.isScheduledOn(h, last7Codes[i])) {
                         totalSched7++;
-                        if (doneDates.contains(last7Dates[i])) totalDone7++;
+                        if (doneDates.contains(last7Dates[i]))
+                            totalDone7++;
                     }
                 }
 
                 // Habitudes d'aujourd'hui
                 if (HabitSchedule.isScheduledToday(h)) {
                     todayHabits.add(h);
-                    if (doneDates.contains(today)) doneToday.add(h.id);
+                    if (doneDates.contains(today))
+                        doneToday.add(h.id);
                 }
             }
 
             int total = todayHabits.size();
-            int done  = doneToday.size();
-            int pct   = total == 0 ? 0 : Math.round(done * 100f / total);
+            int done = doneToday.size();
+            int pct = total == 0 ? 0 : Math.round(done * 100f / total);
             int weeklyAvg = totalSched7 == 0 ? 0 : Math.round(totalDone7 * 100f / totalSched7);
-            final int maxStreakF  = maxStreak;
+            final int maxStreakF = maxStreak;
             final int weeklyAvgF = weeklyAvg;
 
             AppExecutors.main().execute(() -> {
@@ -171,8 +177,10 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 tvCompletionPercent.setText(pct + "% Completed");
                 progressMomentum.setProgress(pct);
                 tvDashboardStreak.setText(maxStreakF + " Day Streak");
-                if (tvLongestStreak != null) tvLongestStreak.setText(String.valueOf(maxStreakF));
-                if (tvWeeklyAvg != null)     tvWeeklyAvg.setText(weeklyAvgF + "%");
+                if (tvLongestStreak != null)
+                    tvLongestStreak.setText(String.valueOf(maxStreakF));
+                if (tvWeeklyAvg != null)
+                    tvWeeklyAvg.setText(weeklyAvgF + "%");
                 if (total == 0) {
                     tvMomentumSubtitle.setText("No habits yet. Add one to get started!");
                 } else {
@@ -184,20 +192,28 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
     private static String toDayCode(int dow) {
         switch (dow) {
-            case Calendar.MONDAY:    return "MON";
-            case Calendar.TUESDAY:   return "TUE";
-            case Calendar.WEDNESDAY: return "WED";
-            case Calendar.THURSDAY:  return "THU";
-            case Calendar.FRIDAY:    return "FRI";
-            case Calendar.SATURDAY:  return "SAT";
-            default:                 return "SUN";
+            case Calendar.MONDAY:
+                return "MON";
+            case Calendar.TUESDAY:
+                return "TUE";
+            case Calendar.WEDNESDAY:
+                return "WED";
+            case Calendar.THURSDAY:
+                return "THU";
+            case Calendar.FRIDAY:
+                return "FRI";
+            case Calendar.SATURDAY:
+                return "SAT";
+            default:
+                return "SUN";
         }
     }
 
     private int computeStreak(Set<String> doneDates, String today) {
         int streak = 0;
         int offset = 0;
-        if (!doneDates.contains(today)) offset = -1;
+        if (!doneDates.contains(today))
+            offset = -1;
         while (doneDates.contains(DateUtil.dayOffset(offset))) {
             streak++;
             offset--;
@@ -224,8 +240,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     }
 
     /**
-     * Kanت'akkدو l'utilisateur dyal session mazal kayn f DB.
-     * Ila tmse7 (mثلا mn ba3d upgrade dyal DB li drop l'tables) → clear session + Login.
+     * Kant'akkdo l'utilisateur dyal session mazal kayn f DB.
+     * Ila tmse7 (methlan mn ba3d upgrade dyal DB li drop l'tables) → clear session +
+     * Login.
      */
     private void verifyUserExists() {
         long userId = session.getUserId();
@@ -251,27 +268,23 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private void setupNavigation() {
         FloatingActionButton fab = findViewById(R.id.fab_add_habit);
         if (fab != null) {
-            fab.setOnClickListener(v ->
-                    startActivity(new Intent(this, AddHabitActivity.class)));
+            fab.setOnClickListener(v -> startActivity(new Intent(this, AddHabitActivity.class)));
         }
 
         TextView viewAll = findViewById(R.id.tv_view_all);
         if (viewAll != null) {
-            viewAll.setOnClickListener(v ->
-                    startActivity(new Intent(this, HabitListActivity.class)));
+            viewAll.setOnClickListener(v -> startActivity(new Intent(this, HabitListActivity.class)));
         }
 
         ImageView profileImage = findViewById(R.id.profile_image);
         if (profileImage != null) {
             AvatarUtil.setInitial(profileImage, session.getName());
-            profileImage.setOnClickListener(v ->
-                    startActivity(new Intent(this, ProfileActivity.class)));
+            profileImage.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
         }
 
         View bell = findViewById(R.id.btn_notifications);
         if (bell != null) {
-            bell.setOnClickListener(v ->
-                    startActivity(new Intent(this, SettingsActivity.class)));
+            bell.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         }
 
         BottomNavigationView nav = findViewById(R.id.bottom_navigation);

@@ -17,7 +17,7 @@ public final class HabitStyle {
 
     private HabitStyle() {}
 
-    /** Icons li yقder l'musta3mel yختار menhom. */
+    /** Icons li yqder l'musta3mel ykhtar menhom. */
     public static final int[] ICONS = {
             R.drawable.ic_water,
             R.drawable.ic_fire,
@@ -33,7 +33,7 @@ public final class HabitStyle {
             R.drawable.ic_home,
     };
 
-    /** Colors (ARGB) li yقder l'musta3mel yختار menhom. */
+    /** Colors (ARGB) li yqder l'musta3mel ykhtar menhom. */
     public static final int[] COLORS = {
             0xFF0056D2, // blue
             0xFF006C49, // green

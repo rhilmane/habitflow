@@ -12,8 +12,8 @@ import androidx.core.content.ContextCompat;
 import com.example.myapplication.R;
 
 /**
- * Kayصاوب avatar b l'7arf l'awwel dyal smiya (3la khlfiya mlowna).
- * L'ImageView (ShapeableImageView) houwa li kayدير l'cercle.
+ * Kaysawb avatar b l'7arf l'awwel dyal smiya (3la khlfiya mlowna).
+ * L'ImageView (ShapeableImageView) houwa li kaydir l'cercle.
  */
 public final class AvatarUtil {
 

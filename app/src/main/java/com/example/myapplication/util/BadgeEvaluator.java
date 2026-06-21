@@ -21,13 +21,13 @@ public final class BadgeEvaluator {
 
     private BadgeEvaluator() {}
 
-    /** Kayكمّل f background thread; ma kayrje3 walou. */
+    /** Kaykmel f background thread; ma kayrje3 walou. */
     public static void evaluateAsync(Context context, long userId) {
         Context appCtx = context.getApplicationContext();
         AppExecutors.io().execute(() -> evaluate(appCtx, userId));
     }
 
-    /** Khass yt3ayet f background thread (kayمس DB). */
+    /** Khass yt3ayet f background thread (kaymes DB). */
     public static void evaluate(Context context, long userId) {
         HabitDao habitDao = new HabitDao(context);
         HabitLogDao logDao = new HabitLogDao(context);
@@ -80,7 +80,7 @@ public final class BadgeEvaluator {
         }
     }
 
-    /** Streak = ayyam mتتالية done 7tal l'youm (wla mn lbare7 ila l'youm mazal). */
+    /** Streak = ayyam mtatalia done 7tal l'youm (wla mn lbare7 ila l'youm mazal). */
     private static int computeStreak(Set<String> doneDates) {
         int streak = 0;
         int offset = 0;

@@ -15,6 +15,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Synchronise les données locales SQLite vers Supabase PostgreSQL.
  *
@@ -213,6 +219,162 @@ public class SyncManager {
         } finally {
             c.close();
         }
+    }
+
+    // ─── Download (Supabase → SQLite) ────────────────────────────────────────
+
+    /** Télécharge les données cloud et les insère en local (INSERT OR REPLACE). */
+    public static void downloadAll(Context context) {
+        AppExecutors.io().execute(() -> {
+            if (!isNetworkAvailable(context)) {
+                Log.d(TAG, "Pas de réseau — download annulé");
+                return;
+            }
+            long userId = new SessionManager(context).getUserId();
+            if (userId < 0) {
+                Log.d(TAG, "Aucun utilisateur — download annulé");
+                return;
+            }
+            Log.d(TAG, "Début téléchargement pour userId=" + userId);
+
+            downloadUsers(context, userId);
+            List<Long> habitIds = downloadHabits(context, userId);
+            if (!habitIds.isEmpty()) {
+                String inClause = buildInClause(habitIds);
+                downloadMicroActions(context, inClause);
+                downloadHabitLogs(context, inClause);
+            }
+            downloadBadges(context, userId);
+
+            Log.d(TAG, "Téléchargement terminé");
+        });
+    }
+
+    private static void downloadUsers(Context context, long userId) {
+        String json = SupabaseClient.fetch("users", "id=eq." + userId);
+        if (json == null) return;
+        try {
+            JSONArray arr = new JSONArray(json);
+            SQLiteDatabase db = DbHelper.getInstance(context).getWritableDatabase();
+            for (int i = 0; i < arr.length(); i++) {
+                ContentValues cv = jsonToContentValues(arr.getJSONObject(i), null);
+                db.insertWithOnConflict(DbContract.Users.TABLE, null, cv,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            Log.d(TAG, "users downloaded: " + arr.length());
+        } catch (JSONException e) {
+            Log.e(TAG, "downloadUsers error: " + e.getMessage());
+        }
+    }
+
+    private static List<Long> downloadHabits(Context context, long userId) {
+        List<Long> ids = new ArrayList<>();
+        String json = SupabaseClient.fetch("habits", "user_id=eq." + userId);
+        if (json == null) return ids;
+        try {
+            JSONArray arr = new JSONArray(json);
+            SQLiteDatabase db = DbHelper.getInstance(context).getWritableDatabase();
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject obj = arr.getJSONObject(i);
+                ids.add(obj.getLong("id"));
+                ContentValues cv = jsonToContentValues(obj, null);
+                db.insertWithOnConflict(DbContract.Habits.TABLE, null, cv,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            Log.d(TAG, "habits downloaded: " + arr.length());
+        } catch (JSONException e) {
+            Log.e(TAG, "downloadHabits error: " + e.getMessage());
+        }
+        return ids;
+    }
+
+    private static void downloadMicroActions(Context context, String inClause) {
+        String json = SupabaseClient.fetch("micro_actions", "habit_id=in.(" + inClause + ")");
+        if (json == null) return;
+        try {
+            JSONArray arr = new JSONArray(json);
+            SQLiteDatabase db = DbHelper.getInstance(context).getWritableDatabase();
+            for (int i = 0; i < arr.length(); i++) {
+                ContentValues cv = jsonToContentValues(arr.getJSONObject(i), null);
+                db.insertWithOnConflict(DbContract.MicroActions.TABLE, null, cv,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            Log.d(TAG, "micro_actions downloaded: " + arr.length());
+        } catch (JSONException e) {
+            Log.e(TAG, "downloadMicroActions error: " + e.getMessage());
+        }
+    }
+
+    private static void downloadHabitLogs(Context context, String inClause) {
+        String json = SupabaseClient.fetch("habit_logs", "habit_id=in.(" + inClause + ")");
+        if (json == null) return;
+        try {
+            JSONArray arr = new JSONArray(json);
+            SQLiteDatabase db = DbHelper.getInstance(context).getWritableDatabase();
+            for (int i = 0; i < arr.length(); i++) {
+                ContentValues cv = jsonToContentValues(arr.getJSONObject(i), null);
+                db.insertWithOnConflict(DbContract.HabitLogs.TABLE, null, cv,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            Log.d(TAG, "habit_logs downloaded: " + arr.length());
+        } catch (JSONException e) {
+            Log.e(TAG, "downloadHabitLogs error: " + e.getMessage());
+        }
+    }
+
+    private static void downloadBadges(Context context, long userId) {
+        // En Supabase les badges ont user_id, mais pas dans SQLite local → on le skip
+        Set<String> skip = Collections.singleton("user_id");
+        String json = SupabaseClient.fetch("badges", "user_id=eq." + userId);
+        if (json == null) return;
+        try {
+            JSONArray arr = new JSONArray(json);
+            SQLiteDatabase db = DbHelper.getInstance(context).getWritableDatabase();
+            for (int i = 0; i < arr.length(); i++) {
+                ContentValues cv = jsonToContentValues(arr.getJSONObject(i), skip);
+                db.insertWithOnConflict(DbContract.Badges.TABLE, null, cv,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            Log.d(TAG, "badges downloaded: " + arr.length());
+        } catch (JSONException e) {
+            Log.e(TAG, "downloadBadges error: " + e.getMessage());
+        }
+    }
+
+    private static ContentValues jsonToContentValues(JSONObject obj, Set<String> skipKeys)
+            throws JSONException {
+        ContentValues cv = new ContentValues();
+        Iterator<String> keys = obj.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            if (IS_SYNCED.equals(key)) continue;
+            if (skipKeys != null && skipKeys.contains(key)) continue;
+            Object val = obj.get(key);
+            if (val == JSONObject.NULL) {
+                cv.putNull(key);
+            } else if (val instanceof Integer) {
+                cv.put(key, (Integer) val);
+            } else if (val instanceof Long) {
+                cv.put(key, (Long) val);
+            } else if (val instanceof Double) {
+                cv.put(key, (Double) val);
+            } else if (val instanceof Boolean) {
+                cv.put(key, (Boolean) val ? 1 : 0);
+            } else {
+                cv.put(key, val.toString());
+            }
+        }
+        cv.put(IS_SYNCED, 1);
+        return cv;
+    }
+
+    private static String buildInClause(List<Long> ids) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < ids.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(ids.get(i));
+        }
+        return sb.toString();
     }
 
     // ─── Utilitaires ──────────────────────────────────────────────────────────

@@ -37,7 +37,7 @@ public final class NotificationHelper {
         }
     }
 
-    /** Kayسيفط notification dyal reminder dyal 3ada. */
+    /** Kaysifte notification dyal reminder dyal 3ada. */
     public static void showReminder(Context context, long habitId, String habitName) {
         createChannel(context);
 

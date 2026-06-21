@@ -48,7 +48,7 @@ public final class ReminderScheduler {
     public static void cancel(Context context, long habitId) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
-        // Extras ماشي parti mن equality dyal PendingIntent → cancel kayماتش 3la requestCode
+        // Extras machi parti men equality dyal PendingIntent → cancel kaymatch 3la requestCode
         PendingIntent pi = buildPendingIntent(context, habitId, null, null);
         am.cancel(pi);
         pi.cancel();

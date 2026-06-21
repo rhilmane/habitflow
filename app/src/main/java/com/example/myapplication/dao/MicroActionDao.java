@@ -45,7 +45,7 @@ public class MicroActionDao {
         return result;
     }
 
-    /** Kayسجّل nhar dyal completion (date) wla kaymse7 (null) ila tfekkat. */
+    /** Kaysjel nhar dyal completion (date) wla kaymse7 (null) ila tfekkat. */
     public int setDoneDate(long id, String date) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues v = new ContentValues();

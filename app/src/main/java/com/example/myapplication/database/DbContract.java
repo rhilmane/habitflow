@@ -5,9 +5,13 @@ package com.example.myapplication.database;
  */
 public final class DbContract {
 
-    private DbContract() {}
+    private DbContract() {
+    }
 
-    /** Colonne commune à toutes les tables pour le suivi de synchronisation Supabase. */
+    /**
+     * Colonne commune à toutes les tables pour le suivi de synchronisation
+     * Supabase.
+     */
     public static final String IS_SYNCED = "is_synced";
 
     public static final class Users {
@@ -19,7 +23,7 @@ public final class DbContract {
         public static final String AVATAR_URL = "avatar_url";
         public static final String CREATED_AT = "created_at";
         public static final String SECURITY_QUESTION = "security_question";
-        public static final String SECURITY_ANSWER   = "security_answer";
+        public static final String SECURITY_ANSWER = "security_answer";
     }
 
     public static final class Habits {
@@ -62,8 +66,6 @@ public final class DbContract {
         public static final String HABIT_ID = "habit_id";
         public static final String TEXT = "text";
         public static final String POSITION = "position";
-        // Akher nhar li tcheckat fih ("yyyy-MM-dd"). Done l'youm = LAST_DONE_DATE == today.
-        // Hakda kayt-reset kol nhar (7sab frequency dyal l'3ada).
         public static final String LAST_DONE_DATE = "last_done_date";
     }
 }

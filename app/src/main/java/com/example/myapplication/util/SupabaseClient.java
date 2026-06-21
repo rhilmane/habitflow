@@ -53,6 +53,32 @@ public class SupabaseClient {
     }
 
     /**
+     * GET une table Supabase avec un filtre PostgREST (ex: "user_id=eq.5").
+     * @return corps de la réponse JSON (string) ou null si erreur
+     */
+    public static String fetch(String table, String queryParams) {
+        String url = BASE_URL + table;
+        if (queryParams != null && !queryParams.isEmpty()) {
+            url += "?" + queryParams;
+        }
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        try (Response response = get().newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().string();
+            }
+            Log.e(TAG, "fetch " + table + " failed: "
+                    + response.code() + " " + response.message());
+            return null;
+        } catch (IOException e) {
+            Log.e(TAG, "fetch " + table + " IOException: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Upsert (insert ou update si id existe déjà) d'un tableau JSON dans une table Supabase.
      * @param table  nom de la table (ex: "habits")
      * @param json   tableau JSON ex: [{"id":1,"name":"Sport",...}]

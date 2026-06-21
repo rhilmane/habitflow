@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.myapplication.R;
 
 /**
- * Écran dyal welcome li kayban ghir f lowwel mرة (9bel Login).
+ * Écran dyal welcome li kayban ghir f lowwel marra (9bel Login).
  */
 public class OnboardingActivity extends AppCompatActivity {
 

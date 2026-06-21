@@ -43,7 +43,7 @@ public class CalendarActivity extends AppCompatActivity {
     private List<Habit> allHabits = new ArrayList<>();
     private Map<String, Set<Long>> doneHabitsByDate = new HashMap<>();
 
-    // Chhar li m3roud daba (kanثبتو 3la lowwel dyal chhar)
+    // Chhar li m3roud daba (kanthebto 3la lowwel dyal chhar)
     private final Calendar displayedMonth = Calendar.getInstance();
 
     @Override

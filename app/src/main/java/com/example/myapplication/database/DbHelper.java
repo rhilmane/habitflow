@@ -14,10 +14,6 @@ import com.example.myapplication.database.DbContract.Habits;
 import com.example.myapplication.database.DbContract.MicroActions;
 import com.example.myapplication.database.DbContract.Users;
 
-/**
- * SQLiteOpenHelper li kayssna3 l base de donnees w l jadawil.
- * Singleton bach n7afdo 3la connexion wahda.
- */
 public class DbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "habits.db";
@@ -105,20 +101,20 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private void seedBadges(@NonNull SQLiteDatabase db) {
         // Catégorie A — Habitudes créées
-        insertBadge(db, "Recrue",      "Crée ta première habitude",        R.drawable.ic_badge_recrue);
-        insertBadge(db, "Stratège",    "Crée 5 habitudes",                 R.drawable.ic_badge_stratege);
-        insertBadge(db, "Architecte",  "Crée 10 habitudes",                R.drawable.ic_badge_architecte);
+        insertBadge(db, "Recrue", "Crée ta première habitude", R.drawable.ic_badge_recrue);
+        insertBadge(db, "Stratège", "Crée 5 habitudes", R.drawable.ic_badge_stratege);
+        insertBadge(db, "Architecte", "Crée 10 habitudes", R.drawable.ic_badge_architecte);
         // Catégorie B — Completions totales
-        insertBadge(db, "Soldat",      "Complète ta première habitude",    R.drawable.ic_badge_soldat);
-        insertBadge(db, "Caporal",     "Atteins 10 completions",           R.drawable.ic_badge_caporal);
-        insertBadge(db, "Sergent",     "Atteins 25 completions",           R.drawable.ic_badge_sergent);
-        insertBadge(db, "Commandant",  "Atteins 50 completions",           R.drawable.ic_badge_commandant);
-        insertBadge(db, "Colonel",     "Atteins 100 completions",          R.drawable.ic_badge_colonel);
-        insertBadge(db, "Maréchal",    "Atteins 250 completions",          R.drawable.ic_badge_marechal);
-        insertBadge(db, "Légende",     "Atteins 500 completions",          R.drawable.ic_badge_legende);
+        insertBadge(db, "Soldat", "Complète ta première habitude", R.drawable.ic_badge_soldat);
+        insertBadge(db, "Caporal", "Atteins 10 completions", R.drawable.ic_badge_caporal);
+        insertBadge(db, "Sergent", "Atteins 25 completions", R.drawable.ic_badge_sergent);
+        insertBadge(db, "Commandant", "Atteins 50 completions", R.drawable.ic_badge_commandant);
+        insertBadge(db, "Colonel", "Atteins 100 completions", R.drawable.ic_badge_colonel);
+        insertBadge(db, "Maréchal", "Atteins 250 completions", R.drawable.ic_badge_marechal);
+        insertBadge(db, "Légende", "Atteins 500 completions", R.drawable.ic_badge_legende);
         // Catégorie C — Streak maximum
-        insertBadge(db, "Lieutenant",  "Maintiens un streak de 7 jours",   R.drawable.ic_badge_lieutenant);
-        insertBadge(db, "Général",     "Maintiens un streak de 30 jours",  R.drawable.ic_badge_general);
+        insertBadge(db, "Lieutenant", "Maintiens un streak de 7 jours", R.drawable.ic_badge_lieutenant);
+        insertBadge(db, "Général", "Maintiens un streak de 30 jours", R.drawable.ic_badge_general);
         insertBadge(db, "Légionnaire", "Maintiens un streak de 365 jours", R.drawable.ic_badge_legionnaire);
     }
 
@@ -142,15 +138,15 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 6) {
             String addCol = " ADD COLUMN " + DbContract.IS_SYNCED + " INTEGER DEFAULT 0";
-            db.execSQL("ALTER TABLE " + Users.TABLE        + addCol);
-            db.execSQL("ALTER TABLE " + Habits.TABLE       + addCol);
-            db.execSQL("ALTER TABLE " + HabitLogs.TABLE    + addCol);
-            db.execSQL("ALTER TABLE " + Badges.TABLE       + addCol);
+            db.execSQL("ALTER TABLE " + Users.TABLE + addCol);
+            db.execSQL("ALTER TABLE " + Habits.TABLE + addCol);
+            db.execSQL("ALTER TABLE " + HabitLogs.TABLE + addCol);
+            db.execSQL("ALTER TABLE " + Badges.TABLE + addCol);
             db.execSQL("ALTER TABLE " + MicroActions.TABLE + addCol);
         }
         if (oldVersion < 7) {
             db.execSQL("ALTER TABLE " + Users.TABLE + " ADD COLUMN " + Users.SECURITY_QUESTION + " TEXT");
-            db.execSQL("ALTER TABLE " + Users.TABLE + " ADD COLUMN " + Users.SECURITY_ANSWER   + " TEXT");
+            db.execSQL("ALTER TABLE " + Users.TABLE + " ADD COLUMN " + Users.SECURITY_ANSWER + " TEXT");
         }
         if (oldVersion < 9) {
             db.execSQL("DELETE FROM " + Badges.TABLE);

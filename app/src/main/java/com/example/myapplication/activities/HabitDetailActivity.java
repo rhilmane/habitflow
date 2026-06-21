@@ -257,12 +257,12 @@ public class HabitDetailActivity extends AppCompatActivity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
-    /** Streak = ayyam متتالية done 7tal l'youm (wla lbare7 ila l'youm mazal). */
+    /** Streak = ayyam mtatalia done 7tal l'youm (wla lbare7 ila l'youm mazal). */
     private int computeStreak(Set<String> doneDates) {
         int streak = 0;
         int offset = 0;
         if (!doneDates.contains(DateUtil.today())) {
-            offset = -1; // l'youm mazal ma t9ada, nبداو mn lbare7
+            offset = -1; // l'youm mazal ma t9ada, nbdaw mn lbare7
         }
         while (doneDates.contains(DateUtil.dayOffset(offset))) {
             streak++;
@@ -291,7 +291,7 @@ public class HabitDetailActivity extends AppCompatActivity {
 
     private void archiveHabit() {
         btnArchive.setEnabled(false);
-        // Kanlغiw reminder dyal had l'3ada
+        // Kanlghiw reminder dyal had l'3ada
         ReminderScheduler.cancel(this, habitId);
         AppExecutors.io().execute(() -> {
             habitDao.setArchived(habitId, true);
@@ -314,7 +314,7 @@ public class HabitDetailActivity extends AppCompatActivity {
     private void deleteHabit() {
         ReminderScheduler.cancel(this, habitId);
         AppExecutors.io().execute(() -> {
-            habitDao.delete(habitId); // CASCADE kayمسح logs + micro actions
+            habitDao.delete(habitId); // CASCADE kaymse7 logs + micro actions
             AppExecutors.main().execute(() -> {
                 Toast.makeText(this, "Habit deleted", Toast.LENGTH_SHORT).show();
                 finish();

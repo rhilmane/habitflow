@@ -130,7 +130,8 @@ public class AddHabitActivity extends AppCompatActivity {
                 });
 
         switchReminder.setOnCheckedChangeListener((v, checked) -> {
-            if (checked) requestNotifPermissionIfNeeded();
+            if (checked)
+                requestNotifPermissionIfNeeded();
         });
         tvReminderTime.setOnClickListener(v -> showTimePicker());
 
@@ -230,7 +231,8 @@ public class AddHabitActivity extends AppCompatActivity {
 
     private void addMicroAction() {
         String text = microActionInput.getText() == null ? "" : microActionInput.getText().toString().trim();
-        if (TextUtils.isEmpty(text)) return;
+        if (TextUtils.isEmpty(text))
+            return;
         addMicroActionChip(text);
         microActionInput.setText("");
     }
@@ -280,14 +282,16 @@ public class AddHabitActivity extends AppCompatActivity {
             View child = chipsDays.getChildAt(i);
             if (child instanceof Chip && ((Chip) child).isChecked()) {
                 Object tag = child.getTag();
-                if (tag != null) days.add(tag.toString());
+                if (tag != null)
+                    days.add(tag.toString());
             }
         }
         return TextUtils.join(",", days);
     }
 
     private void applySelectedDays(String specificDays) {
-        if (TextUtils.isEmpty(specificDays)) return;
+        if (TextUtils.isEmpty(specificDays))
+            return;
         Set<String> set = new HashSet<>(Arrays.asList(specificDays.split(",")));
         for (int i = 0; i < chipsDays.getChildCount(); i++) {
             View child = chipsDays.getChildAt(i);
@@ -328,7 +332,8 @@ public class AddHabitActivity extends AppCompatActivity {
                         String[] p = habit.reminderTime.split(":");
                         reminderHour = Integer.parseInt(p[0]);
                         reminderMinute = Integer.parseInt(p[1]);
-                    } catch (NumberFormatException ignored) { }
+                    } catch (NumberFormatException ignored) {
+                    }
                     updateReminderTimeLabel();
                 }
 
@@ -379,9 +384,12 @@ public class AddHabitActivity extends AppCompatActivity {
         habit.colorTag = selectedColor;
 
         int checkedCat = chipsCategory.getCheckedChipId();
-        if (checkedCat == R.id.chip_cat_health) habit.category = "Health & Fitness";
-        else if (checkedCat == R.id.chip_cat_work) habit.category = "Work & Focus";
-        else habit.category = "Other";
+        if (checkedCat == R.id.chip_cat_health)
+            habit.category = "Health & Fitness";
+        else if (checkedCat == R.id.chip_cat_work)
+            habit.category = "Work & Focus";
+        else
+            habit.category = "Other";
 
         List<String> microSnapshot = new ArrayList<>(microActions);
         boolean isEdit = editHabitId != -1;
@@ -406,7 +414,7 @@ public class AddHabitActivity extends AppCompatActivity {
             AppExecutors.main().execute(() -> {
                 btnSave.setEnabled(true);
                 if (fid > 0 || isEdit) {
-                    // reminders: cancel + reschedule (wla cancel ila tطفّا)
+                    // reminders: cancel + reschedule (wla cancel )
                     ReminderScheduler.cancel(this, fid);
                     if (reminderOn) {
                         ReminderScheduler.schedule(this, fid, name, timeStored, days);
