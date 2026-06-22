@@ -11,16 +11,22 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.myapplication.R;
+import com.example.myapplication.dao.HabitDao;
 import com.example.myapplication.dao.UserDao;
+import com.example.myapplication.models.Habit;
 import com.example.myapplication.models.User;
 import com.example.myapplication.util.AppExecutors;
 import com.example.myapplication.util.PasswordUtil;
+import com.example.myapplication.util.ReminderScheduler;
 import com.example.myapplication.util.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
+
+import java.util.List;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -36,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
         // Initialize Views
         MaterialButton btnBack = findViewById(R.id.btn_back);
         MaterialSwitch switchReminders = findViewById(R.id.switch_reminders);
+        MaterialSwitch switchDarkMode = findViewById(R.id.switch_dark_mode);
         MaterialButton btnLogout = findViewById(R.id.btn_logout);
 
         // Back Button
@@ -56,18 +63,18 @@ public class SettingsActivity extends AppCompatActivity {
             String msg = isChecked ? "Reminders enabled" : "Reminders disabled";
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 
-            com.example.myapplication.util.SessionManager session = new com.example.myapplication.util.SessionManager(this);
+            SessionManager session = new SessionManager(this);
             if (!session.isLoggedIn()) return;
             long userId = session.getUserId();
-            com.example.myapplication.dao.HabitDao habitDao = new com.example.myapplication.dao.HabitDao(this);
-            com.example.myapplication.util.AppExecutors.io().execute(() -> {
-                java.util.List<com.example.myapplication.models.Habit> habits = habitDao.getActiveHabits(userId);
-                for (com.example.myapplication.models.Habit h : habits) {
+            HabitDao habitDao = new HabitDao(this);
+            AppExecutors.io().execute(() -> {
+                List<Habit> habits = habitDao.getActiveHabits(userId);
+                for (Habit h : habits) {
                     if (h.reminderEnabled) {
                         if (isChecked) {
-                            com.example.myapplication.util.ReminderScheduler.schedule(this, h.id, h.name, h.reminderTime, h.specificDays);
+                            ReminderScheduler.schedule(this, h.id, h.name, h.reminderTime, h.specificDays);
                         } else {
-                            com.example.myapplication.util.ReminderScheduler.cancel(this, h.id);
+                            ReminderScheduler.cancel(this, h.id);
                         }
                     }
                 }
@@ -76,6 +83,27 @@ public class SettingsActivity extends AppCompatActivity {
 
 
 
+
+        // Dark Mode
+        boolean darkEnabled = sharedPreferences.getBoolean("dark_mode", false);
+        switchDarkMode.setChecked(darkEnabled);
+        switchDarkMode.setOnCheckedChangeListener((btn, isChecked) -> {
+            sharedPreferences.edit().putBoolean("dark_mode", isChecked).apply();
+            AppCompatDelegate.setDefaultNightMode(
+                    isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        });
+
+        // Support
+        findViewById(R.id.item_help_center).setOnClickListener(v ->
+                Toast.makeText(this, "houssamrhilmane1@gmail.com", Toast.LENGTH_LONG).show());
+        findViewById(R.id.item_rate_app).setOnClickListener(v ->
+                Toast.makeText(this, "Thank you for using HabitFlow!", Toast.LENGTH_SHORT).show());
+
+        // Legal
+        findViewById(R.id.item_privacy_policy).setOnClickListener(v ->
+                Toast.makeText(this, "Privacy Policy", Toast.LENGTH_SHORT).show());
+        findViewById(R.id.item_terms_of_service).setOnClickListener(v ->
+                Toast.makeText(this, "Terms of Service", Toast.LENGTH_SHORT).show());
 
         // Logout Logic (m3a confirmation)
         btnLogout.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)

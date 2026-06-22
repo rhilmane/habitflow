@@ -32,6 +32,22 @@ public class UserDao {
         return db.insert(Users.TABLE, null, v);
     }
 
+    /** Insert avec un ID précis (celui généré par Supabase). */
+    public long insertWithId(User user) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(Users.ID, user.id);
+        v.put(Users.NAME, user.name);
+        v.put(Users.EMAIL, user.email);
+        v.put(Users.PASSWORD_HASH, user.passwordHash);
+        v.put(Users.AVATAR_URL, user.avatarUrl);
+        v.put(Users.CREATED_AT, user.createdAt);
+        v.put(Users.SECURITY_QUESTION, user.securityQuestion);
+        v.put(Users.SECURITY_ANSWER, user.securityAnswer);
+        v.put(DbContract.IS_SYNCED, 1); // already in Supabase
+        return db.insertWithOnConflict(Users.TABLE, null, v, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
     public int update(User user) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues v = new ContentValues();

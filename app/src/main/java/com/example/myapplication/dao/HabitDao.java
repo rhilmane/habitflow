@@ -42,6 +42,18 @@ public class HabitDao {
                 new String[]{String.valueOf(habitId)});
     }
 
+    /** true ila kayna habit b nfs l-ism l-user, machi had l-habit nfso (ila edit) */
+    public boolean existsByName(long userId, String name, long excludeHabitId) {
+        SQLiteDatabase db = helper.getReadableDatabase();
+        try (Cursor c = db.query(Habits.TABLE,
+                new String[]{"COUNT(*)"},
+                Habits.USER_ID + " = ? AND LOWER(" + Habits.NAME + ") = LOWER(?) AND " + Habits.ID + " != ?",
+                new String[]{String.valueOf(userId), name, String.valueOf(excludeHabitId)},
+                null, null, null)) {
+            return c.moveToFirst() && c.getInt(0) > 0;
+        }
+    }
+
     public int delete(long habitId) {
         SQLiteDatabase db = helper.getWritableDatabase();
         return db.delete(Habits.TABLE, Habits.ID + " = ?",

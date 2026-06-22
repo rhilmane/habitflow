@@ -23,7 +23,6 @@ public class SessionManager {
                 .getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    /** Kaysejjel l'utilisateur mli ydkhol. */
     public void saveSession(long userId, String name, String email) {
         prefs.edit()
                 .putLong(KEY_USER_ID, userId)
@@ -48,7 +47,6 @@ public class SessionManager {
         return prefs.getString(KEY_EMAIL, "");
     }
 
-    /** Kaymse7 session (logout). */
     public void logout() {
         prefs.edit().clear().apply();
     }

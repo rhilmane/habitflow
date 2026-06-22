@@ -137,14 +137,39 @@ public class HabitDetailActivity extends AppCompatActivity {
     }
 
     private void toggleDoneToday() {
-        isDoneToday = !isDoneToday;
-        updateMarkDoneButton();
         String today = DateUtil.today();
         long userId = session.getUserId();
-        boolean doneNow = isDoneToday;
+
         AppExecutors.io().execute(() -> {
-            habitLogDao.upsert(new HabitLog(habitId, today, doneNow));
-            if (doneNow) BadgeEvaluator.evaluate(getApplicationContext(), userId);
+            List<MicroAction> microActions = microActionDao.getForHabit(habitId);
+
+            // Check wach kol micro-actions done lyoum
+            boolean allChecked = !microActions.isEmpty();
+            for (MicroAction m : microActions) {
+                if (!m.isDoneOn(today)) { allChecked = false; break; }
+            }
+
+            if (!microActions.isEmpty() && !allChecked) {
+                // Check kol micro-actions
+                for (MicroAction m : microActions) {
+                    microActionDao.setDoneDate(m.id, today);
+                }
+                // Mark habit as done
+                habitLogDao.upsert(new HabitLog(habitId, today, true));
+                BadgeEvaluator.evaluate(getApplicationContext(), userId);
+
+                AppExecutors.main().execute(this::loadHabit);
+            } else {
+                // Mafi micro-actions wla kolhom checked → toggle normal
+                boolean doneNow = !isDoneToday;
+                habitLogDao.upsert(new HabitLog(habitId, today, doneNow));
+                if (doneNow) BadgeEvaluator.evaluate(getApplicationContext(), userId);
+
+                AppExecutors.main().execute(() -> {
+                    isDoneToday = doneNow;
+                    updateMarkDoneButton();
+                });
+            }
         });
     }
 

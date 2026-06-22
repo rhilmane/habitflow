@@ -21,6 +21,8 @@ import com.example.myapplication.models.User;
 import com.example.myapplication.util.AppExecutors;
 import com.example.myapplication.util.PasswordUtil;
 import com.example.myapplication.util.SessionManager;
+import com.example.myapplication.util.SupabaseClient;
+import com.example.myapplication.util.SyncManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -29,13 +31,13 @@ import com.google.android.material.textfield.TextInputLayout;
 public class RegisterActivity extends AppCompatActivity {
 
     private static final String[] QUESTIONS = {
-        "Quel est le nom de votre premier animal de compagnie ?",
-        "Quel est le nom de jeune fille de votre mère ?",
-        "Quelle était votre école primaire ?",
-        "Dans quelle ville êtes-vous né(e) ?",
-        "Quel est le prénom de votre meilleur(e) ami(e) d'enfance ?",
-        "Quel est le surnom de votre grand-mère ?",
-        "Quelle est votre équipe de sport préférée ?"
+            "Quel est le nom de votre premier animal de compagnie ?",
+            "Quel est le nom de jeune fille de votre mère ?",
+            "Quelle était votre école primaire ?",
+            "Dans quelle ville êtes-vous né(e) ?",
+            "Quel est le prénom de votre meilleur(e) ami(e) d'enfance ?",
+            "Quel est le surnom de votre grand-mère ?",
+            "Quelle est votre équipe de sport préférée ?"
     };
 
     private UserDao userDao;
@@ -52,13 +54,13 @@ public class RegisterActivity extends AppCompatActivity {
         userDao = new UserDao(this);
         session = new SessionManager(this);
 
-        nameLayout     = findViewById(R.id.name_layout);
-        emailLayout    = findViewById(R.id.email_layout);
+        nameLayout = findViewById(R.id.name_layout);
+        emailLayout = findViewById(R.id.email_layout);
         passwordLayout = findViewById(R.id.password_layout);
-        nameInput      = findViewById(R.id.name_edit_text);
-        emailInput     = findViewById(R.id.email_edit_text);
-        passwordInput  = findViewById(R.id.password_edit_text);
-        btnRegister    = findViewById(R.id.btn_register);
+        nameInput = findViewById(R.id.name_edit_text);
+        emailInput = findViewById(R.id.email_edit_text);
+        passwordInput = findViewById(R.id.password_edit_text);
+        btnRegister = findViewById(R.id.btn_register);
 
         btnRegister.setOnClickListener(v -> attemptRegister());
         findViewById(R.id.tv_sign_in).setOnClickListener(v -> finish());
@@ -69,8 +71,8 @@ public class RegisterActivity extends AppCompatActivity {
         emailLayout.setError(null);
         passwordLayout.setError(null);
 
-        String name     = nameInput.getText()     == null ? "" : nameInput.getText().toString().trim();
-        String email    = emailInput.getText()    == null ? "" : emailInput.getText().toString().trim();
+        String name = nameInput.getText() == null ? "" : nameInput.getText().toString().trim();
+        String email = emailInput.getText() == null ? "" : emailInput.getText().toString().trim();
         String password = passwordInput.getText() == null ? "" : passwordInput.getText().toString();
 
         if (TextUtils.isEmpty(name)) {
@@ -127,38 +129,67 @@ public class RegisterActivity extends AppCompatActivity {
                 .setMessage("Choisissez une question pour sécuriser votre compte.")
                 .setView(container)
                 .setPositiveButton("Confirmer", null)
-                .setNegativeButton("Annuler", (d, w) -> {})
+                .setNegativeButton("Annuler", (d, w) -> {
+                })
                 .create();
 
-        dialog.setOnShowListener(d ->
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-                String answer = answerInput.getText().toString().trim();
-                if (TextUtils.isEmpty(answer)) {
-                    answerInput.setError("Entrez une réponse");
-                    return;
-                }
-                String question   = (String) spinner.getSelectedItem();
-                String answerHash = PasswordUtil.hash(answer.toLowerCase());
-                dialog.dismiss();
-                saveUser(name, email, hash, question, answerHash);
-            })
-        );
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String answer = answerInput.getText().toString().trim();
+            if (TextUtils.isEmpty(answer)) {
+                answerInput.setError("Entrez une réponse");
+                return;
+            }
+            String question = (String) spinner.getSelectedItem();
+            String answerHash = PasswordUtil.hash(answer.toLowerCase());
+            dialog.dismiss();
+            saveUser(name, email, hash, question, answerHash);
+        }));
 
         dialog.show();
     }
 
     private void saveUser(String name, String email, String hash,
-                          String question, String answerHash) {
+            String question, String answerHash) {
         btnRegister.setEnabled(false);
         AppExecutors.io().execute(() -> {
+            long createdAt = System.currentTimeMillis();
+            long supabaseId = -1;
+
+            // Try Supabase first to get a globally unique ID
+            if (SyncManager.isNetworkAvailable(this)) {
+                try {
+                    org.json.JSONObject obj = new org.json.JSONObject();
+                    obj.put("name", name);
+                    obj.put("email", email);
+                    obj.put("password_hash", hash);
+                    obj.put("security_question", question);
+                    obj.put("security_answer", answerHash);
+                    obj.put("created_at", createdAt);
+                    supabaseId = SupabaseClient.insertReturning("users", obj.toString());
+                } catch (org.json.JSONException ignored) {}
+            }
+
             User user = new User(name, email, hash);
             user.securityQuestion = question;
-            user.securityAnswer   = answerHash;
-            long id = userDao.insert(user);
+            user.securityAnswer = answerHash;
+            user.createdAt = createdAt;
+
+            long id;
+            if (supabaseId > 0) {
+                // Use the Supabase ID locally — guaranteed unique across all devices
+                user.id = supabaseId;
+                userDao.insertWithId(user);
+                id = supabaseId;
+            } else {
+                // Offline fallback: local auto-increment
+                id = userDao.insert(user);
+            }
+
+            final long finalId = id;
             AppExecutors.main().execute(() -> {
                 btnRegister.setEnabled(true);
-                if (id > 0) {
-                    session.saveSession(id, name, email);
+                if (finalId > 0) {
+                    session.saveSession(finalId, name, email);
                     goToMain();
                 } else {
                     emailLayout.setError("Impossible de créer le compte, réessayez");

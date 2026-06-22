@@ -8,10 +8,6 @@ public final class DbContract {
     private DbContract() {
     }
 
-    /**
-     * Colonne commune à toutes les tables pour le suivi de synchronisation
-     * Supabase.
-     */
     public static final String IS_SYNCED = "is_synced";
 
     public static final class Users {

@@ -3,9 +3,9 @@ package com.example.myapplication.models;
 public class MicroAction {
     public long id;
     public long habitId;
-    public String text;          // smiya dyal l'micro action (khotwa sghira)
-    public int position;         // tartib
-    public String lastDoneDate;  // "yyyy-MM-dd" — akher nhar li tcheckat fih (null = jamais)
+    public String text;
+    public int position;
+    public String lastDoneDate;
 
     public MicroAction() {
     }

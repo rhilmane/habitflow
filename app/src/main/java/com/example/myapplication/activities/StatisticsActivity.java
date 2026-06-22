@@ -59,7 +59,7 @@ public class StatisticsActivity extends AppCompatActivity {
         AppExecutors.io().execute(() -> {
             List<Habit> habits = habitDao.getActiveHabits(userId);
             int totalDone = 0;
-            
+
             int[] scheduledCounts = new int[7];
             int[] doneCounts = new int[7];
             int totalScheduled7Days = 0;
@@ -73,22 +73,40 @@ public class StatisticsActivity extends AppCompatActivity {
                 cal.add(Calendar.DAY_OF_YEAR, -d);
                 last7Dates[6 - d] = DateUtil.dayOffset(-d);
                 int dow = cal.get(Calendar.DAY_OF_WEEK);
+
                 switch (dow) {
-                    case Calendar.MONDAY:    last7DayCodes[6 - d] = "MON"; break;
-                    case Calendar.TUESDAY:   last7DayCodes[6 - d] = "TUE"; break;
-                    case Calendar.WEDNESDAY: last7DayCodes[6 - d] = "WED"; break;
-                    case Calendar.THURSDAY:  last7DayCodes[6 - d] = "THU"; break;
-                    case Calendar.FRIDAY:    last7DayCodes[6 - d] = "FRI"; break;
-                    case Calendar.SATURDAY:  last7DayCodes[6 - d] = "SAT"; break;
-                    default:                 last7DayCodes[6 - d] = "SUN"; break;
+                    case Calendar.MONDAY:
+                        last7DayCodes[6 - d] = "MON";
+                        break;
+                    case Calendar.TUESDAY:
+                        last7DayCodes[6 - d] = "TUE";
+                        break;
+                    case Calendar.WEDNESDAY:
+                        last7DayCodes[6 - d] = "WED";
+                        break;
+                    case Calendar.THURSDAY:
+                        last7DayCodes[6 - d] = "THU";
+                        break;
+                    case Calendar.FRIDAY:
+                        last7DayCodes[6 - d] = "FRI";
+                        break;
+                    case Calendar.SATURDAY:
+                        last7DayCodes[6 - d] = "SAT";
+                        break;
+                    default:
+                        last7DayCodes[6 - d] = "SUN";
+                        break;
                 }
+
             }
 
             Map<Long, Set<String>> doneDatesByHabit = new HashMap<>();
             for (Habit h : habits) {
                 List<HabitLog> logs = habitLogDao.getLogsForHabit(h.id);
                 Set<String> doneDates = new HashSet<>();
-                for (HabitLog l : logs) if (l.done) doneDates.add(l.date);
+                for (HabitLog l : logs)
+                    if (l.done)
+                        doneDates.add(l.date);
                 doneDatesByHabit.put(h.id, doneDates);
                 totalDone += doneDates.size();
 
@@ -124,15 +142,17 @@ public class StatisticsActivity extends AppCompatActivity {
 
             // Normaliser par le max des habitudes FAITES (pas planifiées)
             int maxDone = 1;
-            for (int d : doneCounts) if (d > maxDone) maxDone = d;
+            for (int d : doneCounts)
+                if (d > maxDone)
+                    maxDone = d;
 
-            final int finalTotalDone    = totalDone;
+            final int finalTotalDone = totalDone;
             final int finalCompletionRate = completionRate;
-            final int finalMaxDone      = maxDone;
+            final int finalMaxDone = maxDone;
             final int[] finalDoneCounts = doneCounts;
             final String[] finalDayCodes = last7DayCodes;
-            final String todayDate      = DateUtil.today();
-            final String[] finalDates   = last7Dates;
+            final String todayDate = DateUtil.today();
+            final String[] finalDates = last7Dates;
 
             AppExecutors.main().execute(() -> {
                 tvTotalCount.setText(String.valueOf(finalTotalDone));
@@ -143,7 +163,7 @@ public class StatisticsActivity extends AppCompatActivity {
                 }
 
                 float density = getResources().getDisplayMetrics().density;
-                int maxH   = (int) (160 * density);
+                int maxH = (int) (160 * density);
                 int margin = (int) (5 * density);
                 int radius = (int) (6 * density);
 
@@ -154,11 +174,12 @@ public class StatisticsActivity extends AppCompatActivity {
                         boolean isToday = todayDate.equals(finalDates[i]);
 
                         int h = (int) (maxH * finalDoneCounts[i] / (float) finalMaxDone);
-                        if (h < (int) (8 * density)) h = (int) (8 * density);
+                        if (h < (int) (8 * density))
+                            h = (int) (8 * density);
 
                         View bar = new View(StatisticsActivity.this);
                         GradientDrawable gd = new GradientDrawable();
-                        gd.setCornerRadii(new float[]{radius, radius, radius, radius, 0, 0, 0, 0});
+                        gd.setCornerRadii(new float[] { radius, radius, radius, radius, 0, 0, 0, 0 });
                         gd.setColor(getColor(R.color.primary));
                         bar.setBackground(gd);
                         bar.setAlpha(isToday ? 1f : 0.35f);
@@ -170,6 +191,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
                         final int idx = i;
                         bar.setOnClickListener(v -> {
+
                             List<String> status = finalWeekStatus.get(idx);
                             String msg = status.isEmpty()
                                     ? "Aucune habitude planifiée ce jour"
@@ -213,14 +235,22 @@ public class StatisticsActivity extends AppCompatActivity {
 
     private static String dayLabel(String code) {
         switch (code) {
-            case "MON": return "Mo";
-            case "TUE": return "Tu";
-            case "WED": return "We";
-            case "THU": return "Th";
-            case "FRI": return "Fr";
-            case "SAT": return "Sa";
-            case "SUN": return "Su";
-            default:    return code.substring(0, 2);
+            case "MON":
+                return "Mo";
+            case "TUE":
+                return "Tu";
+            case "WED":
+                return "We";
+            case "THU":
+                return "Th";
+            case "FRI":
+                return "Fr";
+            case "SAT":
+                return "Sa";
+            case "SUN":
+                return "Su";
+            default:
+                return code.substring(0, 2);
         }
     }
 

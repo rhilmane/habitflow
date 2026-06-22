@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Onboarding gate: lowwel marra → welcome screen
+        // Onboarding gate: lowwel marra welcome screen
         if (!OnboardingActivity.isDone(this)) {
             Intent intent = new Intent(this, OnboardingActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -172,11 +172,13 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             final int weeklyAvgF = weeklyAvg;
 
             AppExecutors.main().execute(() -> {
+
                 adapter.setData(todayHabits, doneToday);
                 tvTodayEmpty.setVisibility(todayHabits.isEmpty() ? View.VISIBLE : View.GONE);
                 tvCompletionPercent.setText(pct + "% Completed");
                 progressMomentum.setProgress(pct);
                 tvDashboardStreak.setText(maxStreakF + " Day Streak");
+
                 if (tvLongestStreak != null)
                     tvLongestStreak.setText(String.valueOf(maxStreakF));
                 if (tvWeeklyAvg != null)
@@ -241,7 +243,8 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
     /**
      * Kant'akkdo l'utilisateur dyal session mazal kayn f DB.
-     * Ila tmse7 (methlan mn ba3d upgrade dyal DB li drop l'tables) → clear session +
+     * Ila tmse7 (methlan mn ba3d upgrade dyal DB li drop l'tables) → clear session
+     * +
      * Login.
      */
     private void verifyUserExists() {

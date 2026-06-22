@@ -79,6 +79,41 @@ public class SupabaseClient {
     }
 
     /**
+     * Insert un objet JSON et retourne l'id généré par Supabase.
+     * Utilisé pour l'inscription : Supabase génère l'id unique, on le récupère.
+     * @return id généré (> 0) ou -1 si erreur
+     */
+    public static long insertReturning(String table, String json) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .build();
+        Request request = new Request.Builder()
+                .url(BASE_URL + table)
+                .header("apikey", API_KEY)
+                .header("Authorization", "Bearer " + API_KEY)
+                .header("Content-Type", "application/json")
+                .header("Prefer", "return=representation")
+                .post(RequestBody.create(json, JSON_TYPE))
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                String body = response.body().string();
+                org.json.JSONArray arr = new org.json.JSONArray(body);
+                if (arr.length() > 0) {
+                    return arr.getJSONObject(0).getLong("id");
+                }
+            }
+            Log.e(TAG, "insertReturning " + table + " failed: "
+                    + response.code() + " " + response.message());
+            return -1;
+        } catch (Exception e) {
+            Log.e(TAG, "insertReturning " + table + " error: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
      * Upsert (insert ou update si id existe déjà) d'un tableau JSON dans une table Supabase.
      * @param table  nom de la table (ex: "habits")
      * @param json   tableau JSON ex: [{"id":1,"name":"Sport",...}]

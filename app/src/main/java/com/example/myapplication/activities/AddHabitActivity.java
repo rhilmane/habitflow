@@ -153,6 +153,7 @@ public class AddHabitActivity extends AppCompatActivity {
     // ---------- Icon / Color pickers ----------
 
     private void applyIconColorPreview() {
+
         HabitStyle.apply(iconCircle, ivChosenIcon, selectedIcon, selectedColor);
         int dotColor = selectedColor != 0 ? selectedColor
                 : ContextCompat.getColor(this, R.color.primary);
@@ -238,6 +239,7 @@ public class AddHabitActivity extends AppCompatActivity {
     }
 
     private void addMicroActionChip(String text) {
+
         microActions.add(text);
         Chip chip = new Chip(this);
         chip.setText(text);
@@ -247,17 +249,20 @@ public class AddHabitActivity extends AppCompatActivity {
             microActionsChipGroup.removeView(chip);
         });
         microActionsChipGroup.addView(chip);
+
     }
 
     // ---------- Reminder time ----------
 
     private void showTimePicker() {
+
         TimePickerDialog dialog = new TimePickerDialog(this, (view, hour, minute) -> {
             reminderHour = hour;
             reminderMinute = minute;
             updateReminderTimeLabel();
         }, reminderHour, reminderMinute, false);
         dialog.show();
+
     }
 
     private void updateReminderTimeLabel() {
@@ -396,6 +401,17 @@ public class AddHabitActivity extends AppCompatActivity {
 
         btnSave.setEnabled(false);
         AppExecutors.io().execute(() -> {
+            long userId = session.getUserId();
+            boolean duplicate = habitDao.existsByName(userId, name, isEdit ? editHabitId : -1);
+            if (duplicate) {
+                AppExecutors.main().execute(() -> {
+                    btnSave.setEnabled(true);
+                    nameInput.setError("A habit with this name already exists");
+                    nameInput.requestFocus();
+                });
+                return;
+            }
+
             long id;
             if (isEdit) {
                 habitDao.update(habit);

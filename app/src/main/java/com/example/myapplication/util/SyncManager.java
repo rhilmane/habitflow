@@ -76,16 +76,111 @@ public class SyncManager {
             JSONArray arr = cursorToJson(c);
             if (arr.length() == 0) return;
 
-            if (SupabaseClient.upsert("users", arr.toString())) {
+            JSONObject userObj = arr.getJSONObject(0);
+            String email = userObj.optString("email", "");
+
+            // 1. Wach l-email kayn deja f Supabase (sجل mn device ukhor) ?
+            long supabaseId = -1;
+            String existingJson = SupabaseClient.fetch("users",
+                    "email=eq." + email + "&limit=1");
+            if (existingJson != null) {
+                JSONArray existingArr = new JSONArray(existingJson);
+                if (existingArr.length() > 0) {
+                    supabaseId = existingArr.getJSONObject(0).getLong("id");
+                }
+            }
+
+            // 2. Ila ma kaynch → insertReturning baش Supabase y3ti ID frid
+            if (supabaseId < 0) {
+                JSONObject toInsert = new JSONObject();
+                toInsert.put("name",          userObj.optString("name", ""));
+                toInsert.put("email",         email);
+                toInsert.put("password_hash", userObj.optString("password_hash", ""));
+                if (!userObj.isNull("security_question"))
+                    toInsert.put("security_question", userObj.optString("security_question"));
+                if (!userObj.isNull("security_answer"))
+                    toInsert.put("security_answer", userObj.optString("security_answer"));
+                toInsert.put("created_at",
+                        userObj.optLong("created_at", System.currentTimeMillis()));
+                supabaseId = SupabaseClient.insertReturning("users", toInsert.toString());
+            }
+
+            if (supabaseId < 0) {
+                Log.e(TAG, "syncUsers: impossible d'obtenir un id Supabase");
+                return;
+            }
+
+            // 3. Ila tbddl l-ID → bddl f SQLite + session
+            if (supabaseId != userId) {
+                reassignUserId(context, userId, supabaseId);
+                SessionManager session = new SessionManager(context);
+                session.saveSession(supabaseId, session.getName(), session.getEmail());
+                Log.d(TAG, "syncUsers: id " + userId + " → " + supabaseId);
+            } else {
                 markSynced(helper, DbContract.Users.TABLE,
                         DbContract.Users.ID + " = ?",
                         new String[]{String.valueOf(userId)});
-                Log.d(TAG, "users synced (" + arr.length() + " lignes)");
             }
+            Log.d(TAG, "users synced (id=" + supabaseId + ")");
+
         } catch (JSONException e) {
             Log.e(TAG, "syncUsers JSON error: " + e.getMessage());
         } finally {
             c.close();
+        }
+    }
+
+    /**
+     * Kybddl user_id f SQLite: copies l-user b id jdid, update habits.user_id,
+     * w delete l-user l-qdim. FK constraints disabled temporairement.
+     */
+    private static void reassignUserId(Context context, long oldId, long newId) {
+        DbHelper helper = DbHelper.getInstance(context);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        // PRAGMA foreign_keys khass ikun barra transaction
+        db.execSQL("PRAGMA foreign_keys = OFF");
+        db.beginTransaction();
+        try {
+            // 1. Copy user avec newId
+            Cursor c = db.rawQuery(
+                    "SELECT * FROM " + DbContract.Users.TABLE +
+                    " WHERE " + DbContract.Users.ID + " = ?",
+                    new String[]{String.valueOf(oldId)});
+            if (c.moveToFirst()) {
+                ContentValues cv = new ContentValues();
+                cv.put(DbContract.Users.ID, newId);
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    String col = c.getColumnName(i);
+                    if (col.equals(DbContract.Users.ID)) continue;
+                    switch (c.getType(i)) {
+                        case Cursor.FIELD_TYPE_INTEGER: cv.put(col, c.getLong(i));   break;
+                        case Cursor.FIELD_TYPE_FLOAT:   cv.put(col, c.getDouble(i)); break;
+                        case Cursor.FIELD_TYPE_STRING:  cv.put(col, c.getString(i)); break;
+                        default:                        cv.putNull(col);              break;
+                    }
+                }
+                cv.put(IS_SYNCED, 1);
+                db.insertWithOnConflict(DbContract.Users.TABLE, null, cv,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            c.close();
+
+            // 2. Update habits.user_id oldId → newId
+            ContentValues hcv = new ContentValues();
+            hcv.put(DbContract.Habits.USER_ID, newId);
+            db.update(DbContract.Habits.TABLE, hcv,
+                    DbContract.Habits.USER_ID + " = ?",
+                    new String[]{String.valueOf(oldId)});
+
+            // 3. Delete l-user l-qdim (FK off → ma kaynch cascade delete)
+            db.delete(DbContract.Users.TABLE,
+                    DbContract.Users.ID + " = ?",
+                    new String[]{String.valueOf(oldId)});
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            db.execSQL("PRAGMA foreign_keys = ON");
         }
     }
 
